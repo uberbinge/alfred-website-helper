@@ -1,0 +1,26 @@
+# Target directory (contains build artifacts)
+/target/
+
+# Cargo's output directories (same as target, but sometimes separate)
+/out/
+
+# IDE specific files
+.idea/
+.vscode/
+
+# Editor backup files
+*~
+\#*\#
+
+# OS generated files
+.DS_Store
+._*
+
+# Executables (if you don't want to track them)
+/target/debug/*.exe
+/target/release/*.exe
+/target/debug/*
+/target/release/*
+
+# Clippy cache
+/.clippy-cache/
