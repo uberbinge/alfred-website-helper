@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs;
-use std::process::Command;
 
 #[derive(Deserialize)]
 struct Site {
@@ -28,25 +27,6 @@ struct AlfredIcon {
 #[derive(Serialize)]
 struct AlfredOutput {
     items: Vec<AlfredItem>,
-}
-
-fn resolve_onepassword_url(url: &str) -> String {
-    if url.starts_with("op://") {
-        match Command::new("op")
-            .args(&["read", url, "--account=my.1password.eu"])
-            .output()
-        {
-            Ok(output) if output.status.success() => {
-                String::from_utf8(output.stdout)
-                    .unwrap_or_else(|_| url.to_string())
-                    .trim()
-                    .to_string()
-            }
-            _ => url.to_string(), // Fall back to original URL if resolution fails
-        }
-    } else {
-        url.to_string()
-    }
 }
 
 fn main() {
@@ -80,18 +60,15 @@ fn main() {
     let items: Vec<AlfredItem> = sites
         .into_iter()
         .filter(|site| query.is_empty() || site.title.to_lowercase().contains(&query))
-        .map(|site| {
-            let resolved_url = resolve_onepassword_url(&site.arg);
-            AlfredItem {
-                uid: site.title.clone(),
-                title: site.title.clone(),
-                subtitle: resolved_url.clone(),
-                arg: resolved_url,
-                valid: true,
-                icon: AlfredIcon {
-                    path: site.icon.unwrap_or(default_icon.clone()),
-                },
-            }
+        .map(|site| AlfredItem {
+            uid: site.title.clone(),
+            title: site.title.clone(),
+            subtitle: site.arg.clone(),
+            arg: site.arg,
+            valid: true,
+            icon: AlfredIcon {
+                path: site.icon.unwrap_or(default_icon.clone()),
+            },
         })
         .collect();
 
